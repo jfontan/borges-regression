@@ -2,12 +2,19 @@ package regression
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
+
+	"github.com/alcortesm/tgz"
+	"gopkg.in/src-d/go-errors.v1"
 )
 
 var regRelease = regexp.MustCompile(`^v\d+\.\d+\.\d+$`)
+
+var ErrBinaryNotFound = errors.NewKind(
+	"borges binary not found in release tarball")
 
 type Borges struct {
 	Version string
@@ -57,7 +64,54 @@ func (b *Borges) Download() error {
 }
 
 func (b *Borges) downloadRelease() error {
-	return fmt.Errorf("downloadRelease not implemented")
+	tmpDir, err := createTempDir()
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tmpDir)
+
+	r := GetReleases()
+
+	download := filepath.Join(tmpDir, "download.tar.gz")
+	err = r.Get(b.Version, b.tarName(), download)
+	if err != nil {
+		return err
+	}
+
+	path, err := tgz.Extract(download)
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(path)
+
+	binary := filepath.Join(path, b.dirName(), "borges")
+	exist, err := fileExist(binary)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		return ErrBinaryNotFound.New()
+	}
+
+	orig, err := os.Open(binary)
+	if err != nil {
+		return err
+	}
+
+	dst, err := os.Create(b.cacheName())
+	if err != nil {
+		return err
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, orig)
+	if err != nil {
+		dst.Close()
+		os.Remove(dst.Name())
+		return err
+	}
+
+	return nil
 }
 
 func (b *Borges) cacheName() string {
