@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -23,7 +24,7 @@ func getGopath() (string, error) {
 		return "", err
 	}
 
-	return usr.HomeDir, nil
+	return filepath.Join(usr.HomeDir, "go"), nil
 }
 
 func TestServer(t *testing.T) {
