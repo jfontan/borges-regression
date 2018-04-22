@@ -1,8 +1,8 @@
 package regression
 
 import (
-	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -10,7 +10,7 @@ import (
 func TestExecution(t *testing.T) {
 	require := require.New(t)
 
-	e, err := NewExecutor("echo", "hola", "caracola")
+	e, err := NewExecutor("echo", "test", "message")
 	require.NoError(err)
 
 	_, err = e.Out()
@@ -21,7 +21,7 @@ func TestExecution(t *testing.T) {
 
 	out, err := e.Out()
 	require.NoError(err)
-	require.Equal("hola caracola\n", out)
+	require.Equal("test message\n", out)
 
 	rusage, err := e.Rusage()
 	require.NoError(err)
@@ -29,7 +29,7 @@ func TestExecution(t *testing.T) {
 	wall, err := e.Wall()
 	require.NoError(err)
 
-	fmt.Printf("stime: %v\n", rusage.Stime)
-	fmt.Printf("utime: %v\n", rusage.Utime)
-	fmt.Printf("wall: %v\n", wall)
+	require.True(rusage.Maxrss > 0)
+	require.True(rusage.Utime.Nano() > 0)
+	require.True(wall > 0*time.Second)
 }
