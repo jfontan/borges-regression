@@ -26,18 +26,18 @@ var defaultRepos = []RepoDescription{
 		Description: "Average repository",
 		Complexity:  1,
 	},
-	{
-		Name:        "numpy",
-		URL:         "git://github.com/numpy/numpy.git",
-		Description: "Average repository",
-		Complexity:  2,
-	},
-	{
-		Name:        "tensorflow",
-		URL:         "git://github.com/tensorflow/tensorflow.git",
-		Description: "Average repository",
-		Complexity:  3,
-	},
+	// {
+	// 	Name:        "numpy",
+	// 	URL:         "git://github.com/numpy/numpy.git",
+	// 	Description: "Average repository",
+	// 	Complexity:  2,
+	// },
+	// {
+	// 	Name:        "tensorflow",
+	// 	URL:         "git://github.com/tensorflow/tensorflow.git",
+	// 	Description: "Average repository",
+	// 	Complexity:  3,
+	// },
 	// {
 	// 	Name:        "bismuth",
 	// 	URL:         "git://github.com/hclivess/Bismuth.git",
@@ -92,7 +92,7 @@ func (r *Repositories) Path() string {
 func (r *Repositories) Names(complexity int) []string {
 	names := make([]string, 0, len(r.repos))
 	for _, repo := range r.repos {
-		if complexity == 0 || repo.Complexity <= complexity {
+		if repo.Complexity <= complexity {
 			names = append(names, repo.Name)
 		}
 	}
