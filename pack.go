@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"time"
 )
 
 type Pack struct {
@@ -69,6 +70,116 @@ func (p *Pack) Files() ([]os.FileInfo, error) {
 	return p.files, nil
 }
 
+func (p *Pack) Result() *PackResult {
+	var size int64
+
+	for _, file := range p.files {
+		size += file.Size()
+	}
+
+	packResult := &PackResult{
+		Memory:   p.rusage.Maxrss,
+		Wtime:    p.wall,
+		Stime:    time.Duration(p.rusage.Stime.Nano()),
+		Utime:    time.Duration(p.rusage.Utime.Nano()),
+		Files:    p.files,
+		FileSize: size,
+	}
+
+	return packResult
+}
+
+type PackResult struct {
+	Memory   int64
+	Wtime    time.Duration
+	Stime    time.Duration
+	Utime    time.Duration
+	Files    []os.FileInfo
+	FileSize int64
+}
+
+type PackComparison struct {
+	Memory   float64
+	Wtime    float64
+	Stime    float64
+	Utime    float64
+	FileSize float64
+}
+
+func (p *PackResult) Compare(q *PackResult) PackComparison {
+	return PackComparison{
+		Memory:   percent(p.Memory, q.Memory),
+		Wtime:    percent(int64(p.Wtime), int64(q.Wtime)),
+		Stime:    percent(int64(p.Stime), int64(q.Stime)),
+		Utime:    percent(int64(p.Utime), int64(q.Utime)),
+		FileSize: percent(p.FileSize, q.FileSize),
+	}
+}
+
+var compareFormat = "%s: %v -> %v (%v), %v\n"
+
+func (p *PackResult) ComparePrint(q *PackResult, allowance float64) bool {
+	ok := true
+	c := p.Compare(q)
+
+	if c.Memory > allowance {
+		ok = false
+	}
+	fmt.Printf(compareFormat,
+		"Memory",
+		p.Memory,
+		q.Memory,
+		c.Memory,
+		allowance > c.Memory,
+	)
+
+	if c.Wtime > allowance {
+		ok = false
+	}
+	fmt.Printf(compareFormat,
+		"Wtime",
+		p.Wtime,
+		q.Wtime,
+		c.Wtime,
+		allowance > c.Wtime,
+	)
+
+	if c.Stime > allowance {
+		ok = false
+	}
+	fmt.Printf(compareFormat,
+		"Stime",
+		p.Stime,
+		q.Stime,
+		c.Stime,
+		allowance > c.Stime,
+	)
+
+	if c.Utime > allowance {
+		ok = false
+	}
+	fmt.Printf(compareFormat,
+		"Utime",
+		p.Utime,
+		q.Utime,
+		c.Utime,
+		allowance > c.Utime,
+	)
+
+	if c.FileSize > allowance {
+		ok = false
+	}
+	fmt.Printf(compareFormat,
+		"FileSize",
+		p.FileSize,
+		q.FileSize,
+		c.FileSize,
+		allowance > c.FileSize,
+	)
+
+	return ok
+}
+
 func createList(repo string) (string, error) {
 	tmpFile, err := ioutil.TempFile("", "packer-list")
 	if err != nil {
@@ -102,4 +213,9 @@ func createTempDir() (string, error) {
 
 func fileInfo(dir string) ([]os.FileInfo, error) {
 	return ioutil.ReadDir(dir)
+}
+
+func percent(a, b int64) float64 {
+	diff := b - a
+	return (float64(diff) / float64(a)) * 100
 }

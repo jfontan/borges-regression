@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/jfontan/borges-regression"
 
@@ -34,8 +35,14 @@ func main() {
 		panic(err)
 	}
 
+	res := test.GetResults()
+
 	err = test.Stop()
 	if err != nil {
 		panic(err)
+	}
+
+	if !res {
+		os.Exit(1)
 	}
 }
