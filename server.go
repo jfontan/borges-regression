@@ -45,9 +45,5 @@ func (s *Server) Alive() bool {
 	}
 
 	err := s.cmd.Process.Signal(syscall.Signal(0))
-	if err != nil {
-		return false
-	}
-
-	return true
+	return err == nil
 }

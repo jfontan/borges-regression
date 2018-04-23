@@ -98,7 +98,11 @@ func (b *Borges) downloadRelease() error {
 		return err
 	}
 
-	os.MkdirAll(b.binCache, 0755)
+	err = os.MkdirAll(b.binCache, 0755)
+	if err != nil {
+		return err
+	}
+
 	dst, err := os.Create(b.cacheName())
 	if err != nil {
 		return err

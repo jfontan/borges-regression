@@ -71,7 +71,11 @@ func (r *Repositories) Download() error {
 		}
 
 		println("Downloading", repo.Name)
-		os.MkdirAll(r.cacheDir, 0755)
+		err = os.MkdirAll(r.cacheDir, 0755)
+		if err != nil {
+			return err
+		}
+
 		err = downloadRepo(repo.URL, path)
 		if err != nil {
 			return err
@@ -108,9 +112,5 @@ func downloadRepo(url, path string) error {
 	}
 
 	err = os.Rename(downloadPath, path)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

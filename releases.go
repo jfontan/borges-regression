@@ -75,7 +75,10 @@ func (r *Releases) getReleases() error {
 
 func (r *Releases) download(url, path string) error {
 	dir := filepath.Base(path)
-	os.MkdirAll(dir, 0755)
+	err := os.MkdirAll(dir, 0755)
+	if err != nil {
+		return err
+	}
 
 	downloadPath := fmt.Sprintf("%s.download", path)
 	exist, err := fileExist(downloadPath)
@@ -108,9 +111,5 @@ func (r *Releases) download(url, path string) error {
 	}
 
 	err = os.Rename(downloadPath, path)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
