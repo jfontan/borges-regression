@@ -5,7 +5,6 @@ import (
 
 	"github.com/jfontan/borges-regression"
 
-	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/jessevdk/go-flags.v1"
 )
 
@@ -20,24 +19,23 @@ func main() {
 	fmt.Printf("Args: %+v\n", args)
 	fmt.Printf("Error: %+v\n", err)
 
-	repos := regression.NewRepositories()
-	err = repos.Download()
+	test, err := regression.NewTest(args)
 	if err != nil {
 		panic(err)
 	}
 
-	var borges []*regression.Borges
-
-	for _, v := range args {
-		fmt.Printf("Processing %s\n", v)
-		b := regression.NewBorges(v)
-		err := b.Download()
-		if err != nil {
-			panic(err)
-		}
-
-		borges = append(borges, b)
+	err = test.Prepare()
+	if err != nil {
+		panic(err)
 	}
 
-	spew.Dump(borges)
+	err = test.Run()
+	if err != nil {
+		panic(err)
+	}
+
+	err = test.Stop()
+	if err != nil {
+		panic(err)
+	}
 }

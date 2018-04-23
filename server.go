@@ -47,3 +47,7 @@ func (s *Server) Alive() bool {
 	err := s.cmd.Process.Signal(syscall.Signal(0))
 	return err == nil
 }
+
+func (s *Server) Url(name string) string {
+	return fmt.Sprintf("git://localhost:%d/%s", s.port, name)
+}

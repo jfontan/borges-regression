@@ -85,6 +85,21 @@ func (r *Repositories) Download() error {
 	return nil
 }
 
+func (r *Repositories) Path() string {
+	return r.cacheDir
+}
+
+func (r *Repositories) Names(complexity int) []string {
+	names := make([]string, 0, len(r.repos))
+	for _, repo := range r.repos {
+		if complexity == 0 || repo.Complexity <= complexity {
+			names = append(names, repo.Name)
+		}
+	}
+
+	return names
+}
+
 func downloadRepo(url, path string) error {
 	downloadPath := fmt.Sprintf("%s.download", path)
 	exist, err := fileExist(downloadPath)
