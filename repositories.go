@@ -21,11 +21,17 @@ var defaultRepos = []RepoDescription{
 		Complexity:  0,
 	},
 	{
-		Name:        "upsilon",
-		URL:         "git://github.com/upsilonproject/upsilon-common.git",
-		Description: "Average repository",
-		Complexity:  1,
+		Name:        "octoprint-ttf",
+		URL:         "https://github.com/mcuadros/OctoPrint-TFT",
+		Description: "Small repository that should be fast to clone",
+		Complexity:  0,
 	},
+	// {
+	// 	Name:        "upsilon",
+	// 	URL:         "git://github.com/upsilonproject/upsilon-common.git",
+	// 	Description: "Average repository",
+	// 	Complexity:  1,
+	// },
 	// {
 	// 	Name:        "numpy",
 	// 	URL:         "git://github.com/numpy/numpy.git",
