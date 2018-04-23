@@ -98,10 +98,12 @@ func (b *Borges) downloadRelease() error {
 		return err
 	}
 
+	os.MkdirAll(b.binCache, 0755)
 	dst, err := os.Create(b.cacheName())
 	if err != nil {
 		return err
 	}
+	dst.Chmod(0755)
 	defer dst.Close()
 
 	_, err = io.Copy(dst, orig)
@@ -124,7 +126,7 @@ func (b *Borges) tarName() string {
 }
 
 func (b *Borges) dirName() string {
-	return fmt.Sprintf("borges_%s_amd64", b.Version)
+	return fmt.Sprintf("borges_%s_amd64", b.Distro)
 }
 
 func fileExist(path string) (bool, error) {
