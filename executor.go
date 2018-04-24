@@ -36,13 +36,12 @@ func (e *Executor) Run() error {
 	start := time.Now()
 
 	out, err := cmd.CombinedOutput()
+	e.out = string(out)
 	if err != nil {
 		return err
 	}
 
 	e.wall = time.Since(start)
-
-	e.out = string(out)
 
 	rusage, ok := cmd.ProcessState.SysUsage().(*syscall.Rusage)
 	if ok {

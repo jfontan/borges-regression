@@ -9,6 +9,7 @@ import (
 
 	"github.com/alcortesm/tgz"
 	"gopkg.in/src-d/go-errors.v1"
+	log "gopkg.in/src-d/go-log.v0"
 )
 
 var regRelease = regexp.MustCompile(`^v\d+\.\d+\.\d+$`)
@@ -49,12 +50,15 @@ func (b *Borges) Download() error {
 	}
 
 	if exist {
+		log.Debugf("Binary for %s already downloaded", b.Version)
 		b.Path = cacheName
 		return nil
 	}
 
+	log.Debugf("Dowloading version %s", b.Version)
 	err = b.downloadRelease()
 	if err != nil {
+		log.Error(err, "Could not download version %s", b.Version)
 		return err
 	}
 

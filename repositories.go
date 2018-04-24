@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	log "gopkg.in/src-d/go-log.v0"
 )
 
 type RepoDescription struct {
@@ -66,24 +68,33 @@ func NewRepositories() *Repositories {
 
 func (r *Repositories) Download() error {
 	for _, repo := range r.repos {
+		logger, _ := log.New()
+		logger = logger.New(log.Fields{"name": repo.Name})
+
 		path := filepath.Join(r.cacheDir, repo.Name)
 		exist, err := fileExist(path)
 		if err != nil {
 			return err
 		}
 		if exist {
-			println("Repository", repo.Name, "already in cache")
+			logger.Debugf("Repository already downloaded")
 			continue
 		}
 
-		println("Downloading", repo.Name)
+		logger = logger.New(log.Fields{
+			"url":  repo.URL,
+			"path": path,
+		})
+
+		logger.Debugf("Downloading repository")
 		err = os.MkdirAll(r.cacheDir, 0755)
 		if err != nil {
 			return err
 		}
 
-		err = downloadRepo(repo.URL, path)
+		err = downloadRepo(logger, repo.URL, path)
 		if err != nil {
+			logger.Error(err, "Could not download repository")
 			return err
 		}
 	}
@@ -106,7 +117,7 @@ func (r *Repositories) Names(complexity int) []string {
 	return names
 }
 
-func downloadRepo(url, path string) error {
+func downloadRepo(l log.Logger, url, path string) error {
 	downloadPath := fmt.Sprintf("%s.download", path)
 	exist, err := fileExist(downloadPath)
 	if err != nil {
@@ -122,13 +133,14 @@ func downloadRepo(url, path string) error {
 
 	clone, err := NewExecutor("git", "clone", "--bare", url, downloadPath)
 	if err != nil {
-		// TODO: log error
+		l.Error(err, "Could not create executor")
 		return err
 	}
 
 	err = clone.Run()
 	if err != nil {
-		// TODO: log error output
+		out, _ := clone.Out()
+		l.New(log.Fields{"output": out}).Error(err, "Could not execute git clone")
 		return err
 	}
 

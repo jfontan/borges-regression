@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/jfontan/borges-regression"
 
-	"gopkg.in/jessevdk/go-flags.v1"
+	flags "github.com/jessevdk/go-flags"
+	"gopkg.in/src-d/go-log.v0"
 )
 
 type packCmd struct {
@@ -17,17 +17,26 @@ func main() {
 	parser.LongDescription = "long description"
 
 	args, err := parser.Parse()
-	fmt.Printf("Args: %+v\n", args)
-	fmt.Printf("Error: %+v\n", err)
+	if err != nil {
+		log.Error(err, "Could not parse arguments %v")
+		os.Exit(1)
+	}
+
+	if len(args) < 2 {
+		log.Error(nil, "There should be at least two versions")
+		os.Exit(1)
+	}
 
 	test, err := regression.NewTest(args)
 	if err != nil {
 		panic(err)
 	}
 
+	log.Infof("Preparing run")
 	err = test.Prepare()
 	if err != nil {
-		panic(err)
+		log.Error(err, "Could not prepare environment")
+		os.Exit(1)
 	}
 
 	err = test.Run()

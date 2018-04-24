@@ -1,6 +1,10 @@
 package regression
 
-import "fmt"
+import (
+	"fmt"
+
+	"gopkg.in/src-d/go-log.v0"
+)
 
 type packResults map[string]*PackResult
 type versionResults map[string]packResults
@@ -58,25 +62,45 @@ func (t *Test) Run() error {
 		}
 
 		fmt.Printf("## Version %s\n", version)
+		l, _ := log.New()
+		l = l.New(log.Fields{"version": version})
+
+		l.Debugf("Running version tests")
 
 		for _, repo := range t.repos.Names(complexity) {
 			url := t.server.Url(repo)
+			l := l.New(log.Fields{
+				"repo":   repo,
+				"borges": borges.Path,
+				"url":    url,
+			})
+			l.Debugf("Executing pack test")
+
 			pack, err := NewPack(borges.Path, url)
 			if err != nil {
+				log.Error(err, "Could not execute pack")
 				return err
 			}
 
 			err = pack.Run()
+			out, _ := pack.Out()
 			if err != nil {
+				l.New(log.Fields{"output": out}).Error(err, "Could not execute pack")
 				return err
 			}
 
 			results[version][repo] = pack.Result()
 
-			fmt.Printf("  Repo: %s\n", repo)
-			fmt.Printf("  Wall: %v\n", pack.wall)
-			fmt.Printf("  Memory: %v\n", pack.rusage.Maxrss)
-			fmt.Printf("  Files: %+v\n", pack.files)
+			var fileSize int64
+			for _, f := range pack.files {
+				fileSize += f.Size()
+			}
+
+			l.New(log.Fields{
+				"wall":     pack.wall,
+				"memory":   pack.rusage.Maxrss,
+				"fileSize": fileSize,
+			}).Infof("finished pack")
 		}
 	}
 
@@ -110,16 +134,19 @@ func (t *Test) GetResults() bool {
 }
 
 func (t *Test) prepareServer() error {
+	log.Infof("Downloading repositories")
 	err := t.repos.Download()
 	if err != nil {
 		return err
 	}
 
+	log.Infof("Starting git server")
 	err = t.server.Start()
 	return err
 }
 
 func (t *Test) prepareBorges() error {
+	log.Infof("Preparing borges binaries")
 	t.borges = make(map[string]*Borges, len(t.versions))
 	for _, version := range t.versions {
 		b := NewBorges(version)
