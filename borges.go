@@ -38,6 +38,21 @@ func (b *Borges) IsRelease() bool {
 }
 
 func (b *Borges) Download() error {
+	if IsRepo(b.Version) {
+		build, err := NewBuild(b.Version, b.binCache)
+		if err != nil {
+			return err
+		}
+
+		binary, err := build.Build()
+		if err != nil {
+			return err
+		}
+
+		b.Path = binary
+		return nil
+	}
+
 	if !b.IsRelease() {
 		b.Path = b.Version
 		return nil
@@ -89,39 +104,9 @@ func (b *Borges) downloadRelease() error {
 	defer os.RemoveAll(path)
 
 	binary := filepath.Join(path, b.dirName(), "borges")
-	exist, err := fileExist(binary)
-	if err != nil {
-		return err
-	}
-	if !exist {
-		return ErrBinaryNotFound.New()
-	}
+	err = copyBinary(binary, b.cacheName())
 
-	orig, err := os.Open(binary)
-	if err != nil {
-		return err
-	}
-
-	err = os.MkdirAll(b.binCache, 0755)
-	if err != nil {
-		return err
-	}
-
-	dst, err := os.Create(b.cacheName())
-	if err != nil {
-		return err
-	}
-	dst.Chmod(0755)
-	defer dst.Close()
-
-	_, err = io.Copy(dst, orig)
-	if err != nil {
-		dst.Close()
-		os.Remove(dst.Name())
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (b *Borges) cacheName() string {
@@ -147,4 +132,42 @@ func fileExist(path string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func copyBinary(source, destination string) error {
+	println("copyBinary", source, destination)
+	exist, err := fileExist(source)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		return ErrBinaryNotFound.New()
+	}
+
+	orig, err := os.Open(source)
+	if err != nil {
+		return err
+	}
+
+	dir := filepath.Dir(destination)
+	err = os.MkdirAll(dir, 0755)
+	if err != nil {
+		return err
+	}
+
+	dst, err := os.Create(destination)
+	if err != nil {
+		return err
+	}
+	dst.Chmod(0755)
+	defer dst.Close()
+
+	_, err = io.Copy(dst, orig)
+	if err != nil {
+		dst.Close()
+		os.Remove(dst.Name())
+		return err
+	}
+
+	return nil
 }

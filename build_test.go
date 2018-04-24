@@ -9,11 +9,14 @@ import (
 func TestBuild(t *testing.T) {
 	require := require.New(t)
 
-	version := "local:master"
+	version := "remote:master"
 
-	build, err := NewBuild(version)
+	build, err := NewBuild(version, "binaries")
 	require.NoError(err)
 
-	err = build.download()
+	_, err = build.download()
+	require.NoError(err)
+
+	err = build.build()
 	require.NoError(err)
 }
