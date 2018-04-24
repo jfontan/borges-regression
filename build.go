@@ -15,6 +15,8 @@ import (
 	log "gopkg.in/src-d/go-log.v0"
 )
 
+// Build structure holds information and functionality to generate
+// borges binaries from source code.
 type Build struct {
 	// Version is the reference that will be built
 	Version string
@@ -34,14 +36,19 @@ var borgesPath = []string{"src", "github.com", "src-d", "borges"}
 var regRepo = regexp.MustCompile(`^(local|remote|pull):([[:ascii:]]+)$`)
 
 var (
+	// ErrReferenceNotFound means that the provided reference is not found
 	ErrReferenceNotFound = errors.NewKind("Reference %s not found")
-	ErrInvalidVersion    = errors.NewKind("Version %s is invalid")
+	// ErrInvalidVersion means that the provided version is malformed
+	ErrInvalidVersion = errors.NewKind("Version %s is invalid")
 )
 
+// IsRepo returns true if the version provided matches the repository format,
+// for example: remote:master.
 func IsRepo(version string) bool {
 	return regRepo.MatchString(version)
 }
 
+// NewBuild creates a new Build structure
 func NewBuild(version string, binDir string) (*Build, error) {
 	if !IsRepo(version) {
 		return nil, ErrInvalidVersion.New(version)
@@ -67,6 +74,7 @@ func NewBuild(version string, binDir string) (*Build, error) {
 	}, nil
 }
 
+// Build downloads and builds a borges binary from source code.
 func (b *Build) Build() (string, error) {
 	cont, err := b.download()
 	if err != nil {
@@ -117,6 +125,10 @@ func (b *Build) download() (bool, error) {
 		Name: "origin",
 		URLs: []string{b.url},
 	})
+
+	if err != nil {
+		return false, err
+	}
 
 	referenceName, hash, err := findReference(b.Version, remote)
 	if err != nil {

@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+// Executor structure holds information and functionality to execute
+// commands and get resource usage.
 type Executor struct {
 	command  string
 	args     []string
@@ -18,9 +20,13 @@ type Executor struct {
 	wall   time.Duration
 }
 
+// ErrNotRun means that the command was not started
 var ErrNotRun = fmt.Errorf("command still was not executed")
+
+// ErrRusageNotAvailable means that resource usage could not be collected
 var ErrRusageNotAvailable = fmt.Errorf("rusage information not available")
 
+// NewExecutor creates a new Executor struct.
 func NewExecutor(command string, args ...string) (*Executor, error) {
 	return &Executor{
 		command: command,
@@ -28,6 +34,7 @@ func NewExecutor(command string, args ...string) (*Executor, error) {
 	}, nil
 }
 
+// Run executes the command and collects resource usage.
 func (e *Executor) Run() error {
 	defer func() { e.executed = true }()
 
@@ -51,6 +58,7 @@ func (e *Executor) Run() error {
 	return nil
 }
 
+// Out retrieves stdout+stderr from the executed command.
 func (e *Executor) Out() (string, error) {
 	if !e.executed {
 		return "", ErrNotRun
@@ -59,6 +67,7 @@ func (e *Executor) Out() (string, error) {
 	return e.out, nil
 }
 
+// Rusage returns resource usage data.
 func (e *Executor) Rusage() (*syscall.Rusage, error) {
 	if !e.executed {
 		return nil, ErrNotRun
@@ -71,6 +80,7 @@ func (e *Executor) Rusage() (*syscall.Rusage, error) {
 	return e.rusage, nil
 }
 
+// Wall returns time consumed by the execution.
 func (e *Executor) Wall() (time.Duration, error) {
 	if !e.executed {
 		return 0 * time.Second, ErrNotRun

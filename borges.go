@@ -14,9 +14,13 @@ import (
 
 var regRelease = regexp.MustCompile(`^v\d+\.\d+\.\d+$`)
 
+// ErrBinaryNotFound is returned when the borges executable is not found
+// in the release tarball.
 var ErrBinaryNotFound = errors.NewKind(
 	"borges binary not found in release tarball")
 
+// Borges struct contains information and functionality to prepare and
+// use a borges version.
 type Borges struct {
 	Version string
 	Distro  string
@@ -25,6 +29,7 @@ type Borges struct {
 	binCache string
 }
 
+// NewBorges creates a new Borges structure.
 func NewBorges(version string) *Borges {
 	return &Borges{
 		Version:  version,
@@ -33,10 +38,14 @@ func NewBorges(version string) *Borges {
 	}
 }
 
+// IsRelease checks if the version matches the format of a release, for
+// example v0.12.1.
 func (b *Borges) IsRelease() bool {
 	return regRelease.MatchString(b.Version)
 }
 
+// Download prepares a borges binary version if it's still not in the
+// binaries directory.
 func (b *Borges) Download() error {
 	if IsRepo(b.Version) {
 		build, err := NewBuild(b.Version, b.binCache)
