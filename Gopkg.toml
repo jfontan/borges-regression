@@ -1,0 +1,35 @@
+[[constraint]]
+  branch = "master"
+  name = "github.com/alcortesm/tgz"
+
+[[constraint]]
+  name = "github.com/jessevdk/go-flags"
+  version = "1.4.0"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "1.2.1"
+
+[[constraint]]
+  name = "gopkg.in/google/go-github.v15"
+  version = "15.0.0"
+
+[[constraint]]
+  name = "gopkg.in/src-d/go-errors.v0"
+  version = "0.1.0"
+
+[[constraint]]
+  name = "gopkg.in/src-d/go-errors.v1"
+  version = "1.0.0"
+
+[[constraint]]
+  name = "gopkg.in/src-d/go-git.v4"
+  version = "4.3.1"
+
+[[constraint]]
+  branch = "master"
+  name = "gopkg.in/src-d/go-log.v0"
+
+[prune]
+  go-tests = true
+  unused-packages = true
