@@ -20,6 +20,8 @@ type Config struct {
 	Complexity int `env:"REG_COMPLEXITY" default:"1" long:"complexity" short:"c" description:"Complexity of the repositories to test"`
 	// Repeat is the number of times each test will be run
 	Repeat int `env:"REG_REPEAT" default:"3" long:"repeat" short:"n" description:"Number of times a test is run"`
+	// ShowRepos when --show-repos is specified
+	ShowRepos bool `long:"show-repos" description:"List available repositories to test"`
 }
 
 func NewConfig() Config {

@@ -151,3 +151,11 @@ func downloadRepo(l log.Logger, url, path string) error {
 	err = os.Rename(downloadPath, path)
 	return err
 }
+
+func (r *Repositories) ShowRepos() {
+	for _, repo := range r.repos {
+		fmt.Printf("* Name: %s\n", repo.Name)
+		fmt.Printf("  URL: %s\n", repo.URL)
+		fmt.Printf("  Complexity: %d\n", repo.Complexity)
+	}
+}

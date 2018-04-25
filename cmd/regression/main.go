@@ -39,6 +39,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	if config.ShowRepos {
+		repos := regression.NewRepositories(config)
+		repos.ShowRepos()
+		os.Exit(0)
+	}
+
 	if len(args) < 2 {
 		log.Error(nil, "There should be at least two versions")
 		os.Exit(1)
