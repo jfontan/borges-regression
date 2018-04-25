@@ -144,9 +144,9 @@ func (p *PackResult) ComparePrint(q *PackResult, allowance float64) bool {
 		allowance > c.Wtime,
 	)
 
-	if c.Stime > allowance {
-		ok = false
-	}
+	// if c.Stime > allowance {
+	// 	ok = false
+	// }
 	fmt.Printf(compareFormat,
 		"Stime",
 		p.Stime,
@@ -155,9 +155,9 @@ func (p *PackResult) ComparePrint(q *PackResult, allowance float64) bool {
 		allowance > c.Stime,
 	)
 
-	if c.Utime > allowance {
-		ok = false
-	}
+	// if c.Utime > allowance {
+	// 	ok = false
+	// }
 	fmt.Printf(compareFormat,
 		"Utime",
 		p.Utime,
