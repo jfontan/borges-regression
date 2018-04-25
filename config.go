@@ -16,6 +16,10 @@ type Config struct {
 	GitUrl string
 	// GitServerPort is the port where the local git server will listen
 	GitServerPort int
+	// Complexity has the max number of complexity of repos to test
+	Complexity int
+	// Repeat is the number of times each test will be run
+	Repeat int
 }
 
 func NewConfig() Config {

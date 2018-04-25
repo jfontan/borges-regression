@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/src-d/go-errors.v0"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
@@ -246,6 +245,5 @@ func findReference(
 
 func parseVersion(version string) (string, string) {
 	r := regRepo.FindStringSubmatch(version)
-	spew.Dump(r)
 	return r[1], r[2]
 }

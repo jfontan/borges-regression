@@ -45,9 +45,6 @@ func (t *Test) Stop() error {
 	return t.server.Stop()
 }
 
-var complexity = 1
-var times = 3
-
 func (t *Test) Run() error {
 	results := make(versionResults)
 
@@ -62,13 +59,17 @@ func (t *Test) Run() error {
 			panic("borges not initialized. Was Prepare called?")
 		}
 
-		fmt.Printf("## Version %s\n", version)
 		l, _ := log.New()
 		l = l.New(log.Fields{"version": version})
 
-		l.Debugf("Running version tests")
+		l.Infof("Running version tests")
 
-		for _, repo := range t.repos.Names(complexity) {
+		times := t.config.Repeat
+		if times < 1 {
+			times = 1
+		}
+
+		for _, repo := range t.repos.Names(t.config.Complexity) {
 			results[version][repo] = make([]*PackResult, times)
 			for i := 0; i < times; i++ {
 				// TODO: do not stop on errors
@@ -100,7 +101,7 @@ func (t *Test) GetResults() bool {
 		a := t.results[versions[i]]
 		b := t.results[versions[i+1]]
 
-		for _, repo := range t.repos.Names(complexity) {
+		for _, repo := range t.repos.Names(t.config.Complexity) {
 			fmt.Printf("## Repo %s ##\n", repo)
 
 			// TODO: add more options like discard the first run, do the media, etc
@@ -120,7 +121,7 @@ func (t *Test) GetResults() bool {
 func (t *Test) runTest(borges *Borges, repo string) (*PackResult, error) {
 	url := t.server.Url(repo)
 	l, _ := log.New()
-	log.Debugf("Executing pack test for %s", repo)
+	log.Infof("Executing pack test for %s", repo)
 
 	pack, err := NewPack(borges.Path, url)
 	if err != nil {
@@ -148,7 +149,7 @@ func (t *Test) runTest(borges *Borges, repo string) (*PackResult, error) {
 		"wall":     pack.wall,
 		"memory":   pack.rusage.Maxrss,
 		"fileSize": fileSize,
-	}).Infof("finished pack")
+	}).Infof("Finished pack")
 
 	return pack.Result(), nil
 }
