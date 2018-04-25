@@ -23,35 +23,35 @@ var defaultRepos = []RepoDescription{
 		Complexity:  0,
 	},
 	{
-		Name:        "octoprint-ttf",
+		Name:        "octoprint-tft",
 		URL:         "https://github.com/mcuadros/OctoPrint-TFT",
 		Description: "Small repository that should be fast to clone",
 		Complexity:  0,
 	},
-	// {
-	// 	Name:        "upsilon",
-	// 	URL:         "git://github.com/upsilonproject/upsilon-common.git",
-	// 	Description: "Average repository",
-	// 	Complexity:  1,
-	// },
-	// {
-	// 	Name:        "numpy",
-	// 	URL:         "git://github.com/numpy/numpy.git",
-	// 	Description: "Average repository",
-	// 	Complexity:  2,
-	// },
-	// {
-	// 	Name:        "tensorflow",
-	// 	URL:         "git://github.com/tensorflow/tensorflow.git",
-	// 	Description: "Average repository",
-	// 	Complexity:  3,
-	// },
-	// {
-	// 	Name:        "bismuth",
-	// 	URL:         "git://github.com/hclivess/Bismuth.git",
-	// 	Description: "Big files repo (100Mb)",
-	// 	Complexity:  4,
-	// },
+	{
+		Name:        "upsilon",
+		URL:         "git://github.com/upsilonproject/upsilon-common.git",
+		Description: "Average repository",
+		Complexity:  1,
+	},
+	{
+		Name:        "numpy",
+		URL:         "git://github.com/numpy/numpy.git",
+		Description: "Average repository",
+		Complexity:  2,
+	},
+	{
+		Name:        "tensorflow",
+		URL:         "git://github.com/tensorflow/tensorflow.git",
+		Description: "Average repository",
+		Complexity:  3,
+	},
+	{
+		Name:        "bismuth",
+		URL:         "git://github.com/hclivess/Bismuth.git",
+		Description: "Big files repo (100Mb)",
+		Complexity:  4,
+	},
 }
 
 type Repositories struct {
@@ -68,6 +68,10 @@ func NewRepositories(config Config) *Repositories {
 
 func (r *Repositories) Download() error {
 	for _, repo := range r.repos {
+		if repo.Complexity > r.config.Complexity {
+			continue
+		}
+
 		logger, _ := log.New()
 		logger = logger.New(log.Fields{"name": repo.Name})
 
