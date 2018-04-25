@@ -33,8 +33,10 @@ func TestServer(t *testing.T) {
 	gopath, err := getGopath()
 	require.NoError(err)
 
-	repos := fmt.Sprintf("%s/src/github.com/src-d", gopath)
-	server, err := NewServer(repos)
+	config := NewConfig()
+	config.RepositoriesCache = fmt.Sprintf("%s/src/github.com/src-d", gopath)
+
+	server, err := NewServer(config)
 	require.NoError(err)
 
 	err = server.Start()

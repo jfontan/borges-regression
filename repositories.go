@@ -55,14 +55,14 @@ var defaultRepos = []RepoDescription{
 }
 
 type Repositories struct {
-	repos    []RepoDescription
-	cacheDir string
+	repos  []RepoDescription
+	config Config
 }
 
-func NewRepositories() *Repositories {
+func NewRepositories(config Config) *Repositories {
 	return &Repositories{
-		repos:    defaultRepos,
-		cacheDir: "repos",
+		repos:  defaultRepos,
+		config: config,
 	}
 }
 
@@ -71,7 +71,7 @@ func (r *Repositories) Download() error {
 		logger, _ := log.New()
 		logger = logger.New(log.Fields{"name": repo.Name})
 
-		path := filepath.Join(r.cacheDir, repo.Name)
+		path := filepath.Join(r.config.RepositoriesCache, repo.Name)
 		exist, err := fileExist(path)
 		if err != nil {
 			return err
@@ -87,7 +87,7 @@ func (r *Repositories) Download() error {
 		})
 
 		logger.Debugf("Downloading repository")
-		err = os.MkdirAll(r.cacheDir, 0755)
+		err = os.MkdirAll(r.config.RepositoriesCache, 0755)
 		if err != nil {
 			return err
 		}
@@ -103,7 +103,7 @@ func (r *Repositories) Download() error {
 }
 
 func (r *Repositories) Path() string {
-	return r.cacheDir
+	return r.config.RepositoriesCache
 }
 
 func (r *Repositories) Names(complexity int) []string {

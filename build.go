@@ -28,10 +28,10 @@ type Build struct {
 	reference string
 	url       string
 	hash      string
-	binDir    string
+
+	config Config
 }
 
-var borgesRepo = "https://github.com/src-d/borges"
 var borgesPath = []string{"src", "github.com", "src-d", "borges"}
 var regRepo = regexp.MustCompile(`^(local|remote|pull):([[:ascii:]]+)$`)
 
@@ -49,14 +49,14 @@ func IsRepo(version string) bool {
 }
 
 // NewBuild creates a new Build structure
-func NewBuild(version string, binDir string) (*Build, error) {
+func NewBuild(config Config, version string) (*Build, error) {
 	if !IsRepo(version) {
 		return nil, ErrInvalidVersion.New(version)
 	}
 
 	source, reference := parseVersion(version)
 
-	url := borgesRepo
+	url := config.GitUrl
 	if source == "local" {
 		pwd, err := os.Getwd()
 		if err != nil {
@@ -70,7 +70,7 @@ func NewBuild(version string, binDir string) (*Build, error) {
 		source:    source,
 		reference: reference,
 		url:       url,
-		binDir:    binDir,
+		config:    config,
 	}, nil
 }
 
@@ -81,8 +81,7 @@ func (b *Build) Build() (string, error) {
 		return "", err
 	}
 
-	// defer os.RemoveAll(b.GoPath)
-	println("borges", b.borgesPath())
+	defer os.RemoveAll(b.GoPath)
 
 	// Binary is already in place, don't continue
 	if !cont {
@@ -207,7 +206,7 @@ func (b *Build) borgesPath() string {
 
 func (b *Build) borgesBinary() string {
 	name := fmt.Sprintf("borges.%s", b.hash)
-	return filepath.Join(b.binDir, name)
+	return filepath.Join(b.config.BinaryCache, name)
 }
 
 func findReference(

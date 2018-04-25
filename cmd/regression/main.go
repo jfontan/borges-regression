@@ -27,7 +27,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	test, err := regression.NewTest(args)
+	config := regression.NewConfig()
+	config.Versions = args
+
+	test, err := regression.NewTest(config)
 	if err != nil {
 		panic(err)
 	}

@@ -10,24 +10,24 @@ type packResults map[string][]*PackResult
 type versionResults map[string]packResults
 
 type Test struct {
-	repos    *Repositories
-	server   *Server
-	versions []string
-	borges   map[string]*Borges
-	results  versionResults
+	config  Config
+	repos   *Repositories
+	server  *Server
+	borges  map[string]*Borges
+	results versionResults
 }
 
-func NewTest(versions []string) (*Test, error) {
-	repos := NewRepositories()
-	server, err := NewServer(repos.Path())
+func NewTest(config Config) (*Test, error) {
+	repos := NewRepositories(config)
+	server, err := NewServer(config)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Test{
-		repos:    repos,
-		server:   server,
-		versions: versions,
+		config: config,
+		repos:  repos,
+		server: server,
 	}, nil
 }
 
@@ -51,7 +51,7 @@ var times = 3
 func (t *Test) Run() error {
 	results := make(versionResults)
 
-	for _, version := range t.versions {
+	for _, version := range t.config.Versions {
 		_, ok := results[version]
 		if !ok {
 			results[version] = make(packResults)
@@ -89,15 +89,16 @@ func (t *Test) Run() error {
 }
 
 func (t *Test) GetResults() bool {
-	if len(t.versions) < 2 {
+	if len(t.config.Versions) < 2 {
 		panic("there should be at least two versions")
 	}
 
+	versions := t.config.Versions
 	ok := true
-	for i, version := range t.versions[0 : len(t.versions)-1] {
-		fmt.Printf("#### Comparing %s - %s ####\n", version, t.versions[i+1])
-		a := t.results[t.versions[i]]
-		b := t.results[t.versions[i+1]]
+	for i, version := range versions[0 : len(versions)-1] {
+		fmt.Printf("#### Comparing %s - %s ####\n", version, versions[i+1])
+		a := t.results[versions[i]]
+		b := t.results[versions[i+1]]
 
 		for _, repo := range t.repos.Names(complexity) {
 			fmt.Printf("## Repo %s ##\n", repo)
@@ -166,9 +167,9 @@ func (t *Test) prepareServer() error {
 
 func (t *Test) prepareBorges() error {
 	log.Infof("Preparing borges binaries")
-	t.borges = make(map[string]*Borges, len(t.versions))
-	for _, version := range t.versions {
-		b := NewBorges(version)
+	t.borges = make(map[string]*Borges, len(t.config.Versions))
+	for _, version := range t.config.Versions {
+		b := NewBorges(t.config, version)
 		err := b.Download()
 		if err != nil {
 			return err

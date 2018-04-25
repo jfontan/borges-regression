@@ -23,18 +23,16 @@ var ErrBinaryNotFound = errors.NewKind(
 // use a borges version.
 type Borges struct {
 	Version string
-	Distro  string
 	Path    string
 
-	binCache string
+	config Config
 }
 
 // NewBorges creates a new Borges structure.
-func NewBorges(version string) *Borges {
+func NewBorges(config Config, version string) *Borges {
 	return &Borges{
-		Version:  version,
-		Distro:   "linux",
-		binCache: "binaries",
+		Version: version,
+		config:  config,
 	}
 }
 
@@ -48,7 +46,7 @@ func (b *Borges) IsRelease() bool {
 // binaries directory.
 func (b *Borges) Download() error {
 	if IsRepo(b.Version) {
-		build, err := NewBuild(b.Version, b.binCache)
+		build, err := NewBuild(b.config, b.Version)
 		if err != nil {
 			return err
 		}
@@ -120,15 +118,15 @@ func (b *Borges) downloadRelease() error {
 
 func (b *Borges) cacheName() string {
 	binName := fmt.Sprintf("borges.%s", b.Version)
-	return filepath.Join(b.binCache, binName)
+	return filepath.Join(b.config.BinaryCache, binName)
 }
 
 func (b *Borges) tarName() string {
-	return fmt.Sprintf("borges_%s_%s_amd64.tar.gz", b.Version, b.Distro)
+	return fmt.Sprintf("borges_%s_%s_amd64.tar.gz", b.Version, b.config.OS)
 }
 
 func (b *Borges) dirName() string {
-	return fmt.Sprintf("borges_%s_amd64", b.Distro)
+	return fmt.Sprintf("borges_%s_amd64", b.config.OS)
 }
 
 func fileExist(path string) (bool, error) {

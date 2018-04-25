@@ -7,24 +7,22 @@ import (
 )
 
 type Server struct {
-	cmd      *exec.Cmd
-	repoPath string
-	port     int
+	cmd    *exec.Cmd
+	config Config
 }
 
-func NewServer(path string) (*Server, error) {
+func NewServer(config Config) (*Server, error) {
 	return &Server{
-		repoPath: path,
-		port:     9418,
+		config: config,
 	}, nil
 }
 
 func (s *Server) Start() error {
-	basePath := fmt.Sprintf("--base-path=%s", s.repoPath)
-	port := fmt.Sprintf("--port=%d", s.port)
+	basePath := fmt.Sprintf("--base-path=%s", s.config.RepositoriesCache)
+	port := fmt.Sprintf("--port=%d", s.config.GitServerPort)
 
 	s.cmd = exec.Command("git", "daemon", "--reuseaddr", basePath, port,
-		"--export-all", s.repoPath)
+		"--export-all", s.config.RepositoriesCache)
 
 	return s.cmd.Start()
 }
@@ -49,5 +47,5 @@ func (s *Server) Alive() bool {
 }
 
 func (s *Server) Url(name string) string {
-	return fmt.Sprintf("git://localhost:%d/%s", s.port, name)
+	return fmt.Sprintf("git://localhost:%d/%s", s.config.GitServerPort, name)
 }

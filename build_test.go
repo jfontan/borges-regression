@@ -11,7 +11,7 @@ func TestBuild(t *testing.T) {
 
 	version := "remote:master"
 
-	build, err := NewBuild(version, "binaries")
+	build, err := NewBuild(NewConfig(), version)
 	require.NoError(err)
 
 	_, err = build.download()
