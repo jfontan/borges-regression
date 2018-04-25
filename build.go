@@ -55,7 +55,7 @@ func NewBuild(config Config, version string) (*Build, error) {
 
 	source, reference := parseVersion(version)
 
-	url := config.GitUrl
+	url := config.GitURL
 	if source == "local" {
 		pwd, err := os.Getwd()
 		if err != nil {

@@ -9,16 +9,33 @@ import (
 	"gopkg.in/src-d/go-log.v0"
 )
 
-type packCmd struct {
-}
+var description = `Borges regression tester.
+
+This tool executes borges pack with several versions and compares times and resource usage. There should be at least two versions specified as arguments in the following way:
+
+* v0.12.1 - release name from github (https://github.com/src-d/borges/releases). The binary will be downloaded.
+* remote:master - any tag or branch from borges repository. The binary will be built automatically.
+* local:fix/some-bug - tag or branch from the repository in the current directory. The binary will be built.
+* pull:266 - code from pull request #266 from borges repo. Binary is built.
+* /path/to/borges - a borges binary built locally.
+
+The repositories and downloaded/built borges binaries are cached by default in "repos" and "binaries" repositories from the current directory.
+`
 
 func main() {
-	parser := flags.NewParser(nil, flags.Default)
-	parser.LongDescription = "long description"
+	config := regression.NewConfig()
+	parser := flags.NewParser(&config, flags.Default)
+	parser.LongDescription = description
 
 	args, err := parser.Parse()
 	if err != nil {
-		log.Error(err, "Could not parse arguments %v")
+		if err, ok := err.(*flags.Error); ok {
+			if err.Type == flags.ErrHelp {
+				os.Exit(0)
+			}
+		}
+
+		log.Error(err, "Could not parse arguments")
 		os.Exit(1)
 	}
 
@@ -27,7 +44,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	config := regression.NewConfig()
 	config.Versions = args
 
 	test, err := regression.NewTest(config)
