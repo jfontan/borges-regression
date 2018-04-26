@@ -2,6 +2,9 @@
 PROJECT = regression
 COMMANDS = cmd/regression
 
+DOCKER_ORG = jfontan
+GO_BUILD_ENV = CGO_ENABLED=0
+
 # Including ci Makefile
 CI_REPOSITORY ?= https://github.com/src-d/ci.git
 CI_BRANCH ?= v1
