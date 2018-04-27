@@ -13,4 +13,4 @@ RUN apt-get update && \
 ADD build/regression_linux_amd64/regression /bin/
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["/bin/regression", "v0.12.1", "remote:master"]
+CMD ["/bin/regression", "latest", "remote:master"]
