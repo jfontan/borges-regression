@@ -40,11 +40,9 @@ func newReleases() *Releases {
 }
 
 func (r *Releases) Get(version, asset, path string) error {
-	if r.repoReleases == nil {
-		err := r.getReleases()
-		if err != nil {
-			return err
-		}
+	err := r.getReleases()
+	if err != nil {
+		return err
 	}
 
 	for _, rel := range r.repoReleases {
@@ -62,7 +60,25 @@ func (r *Releases) Get(version, asset, path string) error {
 	return ErrVersionNotFound.New(version)
 }
 
+// Lastest return the last version name from github releases
+func (r *Releases) Latest() (string, error) {
+	err := r.getReleases()
+	if err != nil {
+		return "", err
+	}
+
+	if len(r.repoReleases) < 1 {
+		return "", ErrVersionNotFound.New("latest")
+	}
+
+	return r.repoReleases[0].GetName(), nil
+}
+
 func (r *Releases) getReleases() error {
+	if r.repoReleases != nil {
+		return nil
+	}
+
 	ctx := context.Background()
 	rel, _, err := r.client.Repositories.ListReleases(ctx, "src-d", "borges", nil)
 	if err != nil {

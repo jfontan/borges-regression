@@ -60,6 +60,17 @@ func (b *Borges) Download() error {
 		return nil
 	}
 
+	if b.Version == "latest" {
+		r := GetReleases()
+
+		version, err := r.Latest()
+		if err != nil {
+			return nil
+		}
+
+		b.Version = version
+	}
+
 	if !b.IsRelease() {
 		b.Path = b.Version
 		return nil
