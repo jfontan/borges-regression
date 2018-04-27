@@ -21,20 +21,16 @@ var (
 )
 
 type Releases struct {
+	owner        string
+	repo         string
 	client       *github.Client
 	repoReleases []*github.RepositoryRelease
 }
 
-func GetReleases() *Releases {
-	if releases == nil {
-		releases = newReleases()
-	}
-
-	return releases
-}
-
-func newReleases() *Releases {
+func NewReleases(owner, repo string) *Releases {
 	return &Releases{
+		owner:  owner,
+		repo:   repo,
 		client: github.NewClient(nil),
 	}
 }
@@ -60,7 +56,7 @@ func (r *Releases) Get(version, asset, path string) error {
 	return ErrVersionNotFound.New(version)
 }
 
-// Lastest return the last version name from github releases
+// Latest return the last version name from github releases
 func (r *Releases) Latest() (string, error) {
 	err := r.getReleases()
 	if err != nil {
@@ -80,7 +76,7 @@ func (r *Releases) getReleases() error {
 	}
 
 	ctx := context.Background()
-	rel, _, err := r.client.Repositories.ListReleases(ctx, "src-d", "borges", nil)
+	rel, _, err := r.client.Repositories.ListReleases(ctx, r.owner, r.repo, nil)
 	if err != nil {
 		return err
 	}

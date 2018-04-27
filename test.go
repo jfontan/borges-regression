@@ -13,7 +13,7 @@ type Test struct {
 	config  Config
 	repos   *Repositories
 	server  *Server
-	borges  map[string]*Borges
+	borges  map[string]*Binary
 	results versionResults
 }
 
@@ -118,7 +118,7 @@ func (t *Test) GetResults() bool {
 	return ok
 }
 
-func (t *Test) runTest(borges *Borges, repo string) (*PackResult, error) {
+func (t *Test) runTest(borges *Binary, repo string) (*PackResult, error) {
 	url := t.server.Url(repo)
 	l, _ := log.New()
 	log.Infof("Executing pack test for %s", repo)
@@ -168,9 +168,11 @@ func (t *Test) prepareServer() error {
 
 func (t *Test) prepareBorges() error {
 	log.Infof("Preparing borges binaries")
-	t.borges = make(map[string]*Borges, len(t.config.Versions))
+	releases := NewReleases("src-d", "borges")
+
+	t.borges = make(map[string]*Binary, len(t.config.Versions))
 	for _, version := range t.config.Versions {
-		b := NewBorges(t.config, version)
+		b := NewBorges(t.config, version, releases)
 		err := b.Download()
 		if err != nil {
 			return err

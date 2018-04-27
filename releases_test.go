@@ -15,7 +15,7 @@ func TestReleases(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	require.Nil(releases)
-	r := GetReleases()
+	r := NewReleases("src-d", "borges")
 	require.NotNil(releases)
 	require.Equal(releases, r)
 	require.Nil(r.repoReleases)
