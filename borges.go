@@ -45,7 +45,8 @@ func (b *Borges) IsRelease() bool {
 // Download prepares a borges binary version if it's still not in the
 // binaries directory.
 func (b *Borges) Download() error {
-	if IsRepo(b.Version) {
+	switch {
+	case IsRepo(b.Version):
 		build, err := NewBuild(b.config, b.Version)
 		if err != nil {
 			return err
@@ -58,9 +59,8 @@ func (b *Borges) Download() error {
 
 		b.Path = binary
 		return nil
-	}
 
-	if b.Version == "latest" {
+	case b.Version == "latest":
 		r := GetReleases()
 
 		version, err := r.Latest()
@@ -69,9 +69,8 @@ func (b *Borges) Download() error {
 		}
 
 		b.Version = version
-	}
 
-	if !b.IsRelease() {
+	case !b.IsRelease():
 		b.Path = b.Version
 		return nil
 	}
