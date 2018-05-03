@@ -14,10 +14,8 @@ func TestReleases(t *testing.T) {
 	require.NoError(err)
 	defer os.RemoveAll(dir)
 
-	require.Nil(releases)
 	r := NewReleases("src-d", "borges")
-	require.NotNil(releases)
-	require.Equal(releases, r)
+	require.NotNil(r)
 	require.Nil(r.repoReleases)
 
 	path := filepath.Join(dir, "invalid_version")

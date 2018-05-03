@@ -29,9 +29,10 @@ type Build struct {
 	hash      string
 
 	config Config
+	tool   Tool
 }
 
-var borgesPath = []string{"src", "github.com", "src-d", "borges"}
+// var borgesPath = []string{"src", "github.com", "src-d", "borges"}
 var regRepo = regexp.MustCompile(`^(local|remote|pull):([[:ascii:]]+)$`)
 
 var (
@@ -48,7 +49,11 @@ func IsRepo(version string) bool {
 }
 
 // NewBuild creates a new Build structure
-func NewBuild(config Config, version string) (*Build, error) {
+func NewBuild(
+	config Config,
+	tool Tool,
+	version string,
+) (*Build, error) {
 	if !IsRepo(version) {
 		return nil, ErrInvalidVersion.New(version)
 	}
@@ -62,6 +67,8 @@ func NewBuild(config Config, version string) (*Build, error) {
 			return nil, err
 		}
 		url = fmt.Sprintf("file://%s", pwd)
+	} else if url == "" {
+		url = tool.GitURL
 	}
 
 	return &Build{
@@ -69,7 +76,9 @@ func NewBuild(config Config, version string) (*Build, error) {
 		source:    source,
 		reference: reference,
 		url:       url,
-		config:    config,
+
+		config: config,
+		tool:   tool,
 	}, nil
 }
 
@@ -84,7 +93,7 @@ func (b *Build) Build() (string, error) {
 
 	// Binary is already in place, don't continue
 	if !cont {
-		return b.borgesBinary(), nil
+		return b.binaryPath(), nil
 	}
 
 	err = b.build()
@@ -97,7 +106,7 @@ func (b *Build) Build() (string, error) {
 		return "", err
 	}
 
-	return b.borgesBinary(), nil
+	return b.binaryPath(), nil
 }
 
 func (b *Build) download() (bool, error) {
@@ -108,7 +117,7 @@ func (b *Build) download() (bool, error) {
 
 	b.GoPath = dir
 
-	clonePath := b.borgesPath()
+	clonePath := b.projectPath()
 	err = os.MkdirAll(clonePath, 0755)
 	if err != nil {
 		return false, err
@@ -135,7 +144,7 @@ func (b *Build) download() (bool, error) {
 
 	b.hash = hash
 
-	exist, err := fileExist(b.borgesBinary())
+	exist, err := fileExist(b.binaryPath())
 	if err != nil {
 		return false, err
 	}
@@ -172,7 +181,7 @@ func (b *Build) download() (bool, error) {
 
 func (b *Build) build() error {
 	cmd := exec.Command("make", "packages")
-	cmd.Dir = b.borgesPath()
+	cmd.Dir = b.projectPath()
 	cmd.Env = []string{
 		fmt.Sprintf("GOPATH=%s", b.GoPath),
 		fmt.Sprintf("PWD=%s", cmd.Dir),
@@ -193,17 +202,17 @@ func (b *Build) build() error {
 }
 
 func (b *Build) copyBinary() error {
-	source := filepath.Join(b.borgesPath(), "bin", "borges")
-	destination := b.borgesBinary()
+	source := filepath.Join(b.projectPath(), "bin", "borges")
+	destination := b.binaryPath()
 
 	return copyBinary(source, destination)
 }
 
-func (b *Build) borgesPath() string {
-	return filepath.Join(b.GoPath, filepath.Join(borgesPath...))
+func (b *Build) projectPath() string {
+	return filepath.Join(b.GoPath, "src", b.tool.ProjectPath)
 }
 
-func (b *Build) borgesBinary() string {
+func (b *Build) binaryPath() string {
 	name := fmt.Sprintf("borges.%s", b.hash)
 	return filepath.Join(b.config.BinaryCache, name)
 }

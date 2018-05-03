@@ -21,25 +21,26 @@ var ErrBinaryNotFound = errors.NewKind("binary not found in release tarball")
 // Binary struct contains information and functionality to prepare and
 // use a binary version.
 type Binary struct {
-	Name    string
 	Version string
 	Path    string
 
 	releases *Releases
 	config   Config
+	tool     Tool
 }
 
 // NewBinary creates a new Binary structure.
 func NewBinary(
 	config Config,
-	name, version string,
+	tool Tool,
+	version string,
 	releases *Releases,
 ) *Binary {
 	return &Binary{
-		Name:     name,
 		Version:  version,
 		releases: releases,
 		config:   config,
+		tool:     tool,
 	}
 }
 
@@ -54,7 +55,7 @@ func (b *Binary) IsRelease() bool {
 func (b *Binary) Download() error {
 	switch {
 	case IsRepo(b.Version):
-		build, err := NewBuild(b.config, b.Version)
+		build, err := NewBuild(b.config, b.tool, b.Version)
 		if err != nil {
 			return err
 		}
@@ -123,23 +124,27 @@ func (b *Binary) downloadRelease() error {
 	}
 	defer os.RemoveAll(path)
 
-	binary := filepath.Join(path, b.dirName(), b.Name)
+	binary := filepath.Join(path, b.dirName(), b.tool.Name)
 	err = copyBinary(binary, b.cacheName())
 
 	return err
 }
 
 func (b *Binary) cacheName() string {
-	binName := fmt.Sprintf("%s.%s", b.Name, b.Version)
+	binName := fmt.Sprintf("%s.%s", b.tool.Name, b.Version)
 	return filepath.Join(b.config.BinaryCache, binName)
 }
 
 func (b *Binary) tarName() string {
-	return fmt.Sprintf("%s_%s_%s_amd64.tar.gz", b.Name, b.Version, b.config.OS)
+	return fmt.Sprintf("%s_%s_%s_amd64.tar.gz",
+		b.tool.Name,
+		b.Version,
+		b.config.OS,
+	)
 }
 
 func (b *Binary) dirName() string {
-	return fmt.Sprintf("%s_%s_amd64", b.Name, b.config.OS)
+	return fmt.Sprintf("%s_%s_amd64", b.tool.Name, b.config.OS)
 }
 
 func fileExist(path string) (bool, error) {

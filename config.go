@@ -29,3 +29,17 @@ func NewConfig() Config {
 		OS: runtime.GOOS,
 	}
 }
+
+type Tool struct {
+	// Name has the tool name that is the same as the executable name.
+	Name string
+	// GitURL holds the git URL to download the project.
+	GitURL string
+	// ProjectPath is the directory structure inside GOPATH/src where it should
+	// be located for building.
+	ProjectPath string
+	// // BinaryName is the executable name. For example "borges."
+	// BinaryName string
+	// // BinaryPath is the path inside the project where the binary is written.
+	// BinaryPath string
+}

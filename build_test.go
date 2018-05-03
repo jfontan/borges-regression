@@ -9,9 +9,9 @@ import (
 func TestBuild(t *testing.T) {
 	require := require.New(t)
 
-	version := "remote:master"
+	version := "remote:v0.12.1"
 
-	build, err := NewBuild(NewConfig(), version)
+	build, err := NewBuild(NewConfig(), NewToolBorges(), version)
 	require.NoError(err)
 
 	_, err = build.download()
