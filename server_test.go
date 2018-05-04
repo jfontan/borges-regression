@@ -36,8 +36,7 @@ func TestServer(t *testing.T) {
 	config := NewConfig()
 	config.RepositoriesCache = fmt.Sprintf("%s/src/github.com/src-d", gopath)
 
-	server, err := NewServer(config)
-	require.NoError(err)
+	server := NewGitServer(config)
 
 	err = server.Start()
 	require.NoError(err)

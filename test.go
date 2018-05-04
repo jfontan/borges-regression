@@ -12,17 +12,14 @@ type versionResults map[string]packResults
 type Test struct {
 	config  Config
 	repos   *Repositories
-	server  *Server
+	server  *GitServer
 	borges  map[string]*Binary
 	results versionResults
 }
 
 func NewTest(config Config) (*Test, error) {
 	repos := NewRepositories(config)
-	server, err := NewServer(config)
-	if err != nil {
-		return nil, err
-	}
+	server := NewGitServer(config)
 
 	return &Test{
 		config: config,

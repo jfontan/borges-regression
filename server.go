@@ -1,28 +1,20 @@
 package regression
 
 import (
-	"fmt"
 	"os/exec"
 	"syscall"
 )
 
 type Server struct {
-	cmd    *exec.Cmd
-	config Config
+	cmd *exec.Cmd
 }
 
-func NewServer(config Config) (*Server, error) {
-	return &Server{
-		config: config,
-	}, nil
+func NewServer() *Server {
+	return new(Server)
 }
 
-func (s *Server) Start() error {
-	basePath := fmt.Sprintf("--base-path=%s", s.config.RepositoriesCache)
-	port := fmt.Sprintf("--port=%d", s.config.GitServerPort)
-
-	s.cmd = exec.Command("git", "daemon", "--reuseaddr", basePath, port,
-		"--export-all", s.config.RepositoriesCache)
+func (s *Server) Start(name string, arg ...string) error {
+	s.cmd = exec.Command(name, arg...)
 
 	return s.cmd.Start()
 }
@@ -44,8 +36,4 @@ func (s *Server) Alive() bool {
 
 	err := s.cmd.Process.Signal(syscall.Signal(0))
 	return err == nil
-}
-
-func (s *Server) Url(name string) string {
-	return fmt.Sprintf("git://localhost:%d/%s", s.config.GitServerPort, name)
 }
