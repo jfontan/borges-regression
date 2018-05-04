@@ -1,6 +1,9 @@
 package regression
 
-import "runtime"
+import (
+	"fmt"
+	"runtime"
+)
 
 // Config holds the general configuration for tests
 type Config struct {
@@ -8,12 +11,12 @@ type Config struct {
 	Versions []string
 	// OS holds the operating system
 	OS string
-	// BinaryCache is the path to the borges binaries cache
-	BinaryCache string `env:"REG_BINARIES" default:"binaries" long:"binaries" description:"Directory to store borges binaries"`
+	// BinaryCache is the path to the binaries cache
+	BinaryCache string `env:"REG_BINARIES" default:"binaries" long:"binaries" description:"Directory to store binaries"`
 	// RepositoriesCache is the path to the downloaded repositories
 	RepositoriesCache string `env:"REG_REPOS" default:"repos" long:"repos" description:"Directory to store repositories"`
-	// GitURL is the git repository url to download borges
-	GitURL string `env:"REG_GITURL" default:"https://github.com/src-d/borges" long:"url" description:"URL to borges repo"`
+	// GitURL is the git repository url to download the tool
+	GitURL string `env:"REG_GITURL" default:"" long:"url" description:"URL to the tool repo"`
 	// GitServerPort is the port where the local git server will listen
 	GitServerPort int `env:"REG_GITPORT" default:"9418" long:"gitport" description:"Port for local git server"`
 	// Complexity has the max number of complexity of repos to test
@@ -38,8 +41,8 @@ type Tool struct {
 	// ProjectPath is the directory structure inside GOPATH/src where it should
 	// be located for building.
 	ProjectPath string
-	// // BinaryName is the executable name. For example "borges."
-	// BinaryName string
-	// // BinaryPath is the path inside the project where the binary is written.
-	// BinaryPath string
+}
+
+func (t Tool) DirName(os string) string {
+	return fmt.Sprintf("%s_%s_amd64", t.Name, os)
 }

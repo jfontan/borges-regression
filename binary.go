@@ -144,7 +144,7 @@ func (b *Binary) tarName() string {
 }
 
 func (b *Binary) dirName() string {
-	return fmt.Sprintf("%s_%s_amd64", b.tool.Name, b.config.OS)
+	return b.tool.DirName(b.config.OS)
 }
 
 func fileExist(path string) (bool, error) {

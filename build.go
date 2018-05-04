@@ -15,12 +15,12 @@ import (
 )
 
 // Build structure holds information and functionality to generate
-// borges binaries from source code.
+// binaries from source code.
 type Build struct {
 	// Version is the reference that will be built
 	Version string
 
-	// GoPath is the directory where the temporary path where borges is built
+	// GoPath is the directory where the temporary path where the tool is built
 	GoPath string
 
 	source    string
@@ -32,7 +32,6 @@ type Build struct {
 	tool   Tool
 }
 
-// var borgesPath = []string{"src", "github.com", "src-d", "borges"}
 var regRepo = regexp.MustCompile(`^(local|remote|pull):([[:ascii:]]+)$`)
 
 var (
@@ -82,7 +81,7 @@ func NewBuild(
 	}, nil
 }
 
-// Build downloads and builds a borges binary from source code.
+// Build downloads and builds a binary from source code.
 func (b *Build) Build() (string, error) {
 	cont, err := b.download()
 	if err != nil {
@@ -202,7 +201,8 @@ func (b *Build) build() error {
 }
 
 func (b *Build) copyBinary() error {
-	source := filepath.Join(b.projectPath(), "bin", "borges")
+	buildDir := filepath.Join("build", b.tool.DirName(b.config.OS))
+	source := filepath.Join(b.projectPath(), buildDir, b.tool.Name)
 	destination := b.binaryPath()
 
 	return copyBinary(source, destination)
@@ -213,7 +213,7 @@ func (b *Build) projectPath() string {
 }
 
 func (b *Build) binaryPath() string {
-	name := fmt.Sprintf("borges.%s", b.hash)
+	name := fmt.Sprintf("%s.%s", b.tool.Name, b.hash)
 	return filepath.Join(b.config.BinaryCache, name)
 }
 
