@@ -3,6 +3,8 @@ FROM golang:1.10-stretch
 MAINTAINER jfontan
 
 ENV LOG_LEVEL=debug
+ENV REG_REPOS=/cache/repos
+ENV REG_BINARIES=/cache/binaries
 
 RUN apt-get update && \
     apt-get install -y dumb-init \
